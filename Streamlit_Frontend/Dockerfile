@@ -6,7 +6,9 @@ FROM python:3.10-slim as builder
 WORKDIR /app
 
 COPY Streamlit_Frontend/requirements.txt .
-RUN pip install --no-cache-dir --user -r requirements.txt
+RUN pip install --no-cache-dir --user -r requirements.txt && \
+    rm -rf /root/.local/lib/python*/dist-packages/tests && \
+    find /root/.local -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 
 # Runtime stage
 FROM python:3.10-slim
@@ -23,15 +25,24 @@ WORKDIR /app/frontend
 ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONPATH=/app/frontend:$PYTHONPATH
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONHASHSEED=random
 
 # Streamlit specific settings to reduce memory usage
 ENV STREAMLIT_SERVER_MAXUPLOADSIZE=200
 ENV STREAMLIT_CLIENT_MAXMESSAGESIZE=200
 ENV STREAMLIT_SERVER_HEADLESS=true
 ENV STREAMLIT_SERVER_PORT=8501
+ENV STREAMLIT_SERVER_ENABLECORS=false
+ENV STREAMLIT_SERVER_ENABLEXSRFPROTECTION=false
+ENV STREAMLIT_CLIENT_SHOWSTDERR=false
+ENV STREAMLIT_LOGGER_LEVEL=error
+
+# Memory optimization
+ENV MALLOC_TRIM_THRESHOLD_=100000
 
 EXPOSE 8501
 
-ENTRYPOINT ["streamlit","run"]
+ENTRYPOINT ["streamlit","run","--logger.level=error","--client.showErrorDetails=false"]
 
 CMD ["Hello.py"]
