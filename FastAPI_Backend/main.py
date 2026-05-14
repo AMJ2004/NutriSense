@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel,conlist
-from typing import List,Optional
+from pydantic import BaseModel, Field
+from typing import List, Optional, Annotated
 import pandas as pd
 import os
 from model import recommend,output_recommended_recipes
@@ -25,9 +25,9 @@ class params(BaseModel):
     return_distance:bool=False
 
 class PredictionIn(BaseModel):
-    nutrition_input:conlist(float, min_items=9, max_items=9)
-    ingredients:list[str]=[]
-    params:Optional[params]
+    nutrition_input: Annotated[list[float], Field(min_length=9, max_length=9)]
+    ingredients: list[str] = []
+    params: Optional[params] = None
 
 
 class Recipe(BaseModel):
