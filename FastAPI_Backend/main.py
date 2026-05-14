@@ -1,27 +1,13 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel,conlist
 from typing import List,Optional
 import pandas as pd
 from model import recommend,output_recommended_recipes
 
 
-dataset=pd.read_csv('/app/Data/dataset.csv',compression='gzip')
+dataset=pd.read_csv('/app/Data/dataset.csv')
 
-app = FastAPI(
-    title="Nutrisense API",
-    description="Diet Recommendation System API",
-    version="1.0.0"
-)
-
-# Add CORS middleware for Streamlit Cloud compatibility
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins (can be restricted in production)
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app = FastAPI()
 
 
 class params(BaseModel):
