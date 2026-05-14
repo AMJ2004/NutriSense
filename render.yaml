@@ -9,6 +9,22 @@ services:
         value: true
       - key: PYTHONDONTWRITEBYTECODE
         value: true
-    healthCheckPath: /
-    buildCommand: # Leave empty - uses Dockerfile
-    startCommand: # Leave empty - uses Dockerfile CMD
+    healthCheckPath: /health
+    buildCommand:
+    startCommand:
+    
+  - type: web
+    name: nutrisense-frontend
+    env: docker
+    dockerfilePath: ./Streamlit_Frontend/Dockerfile
+    plan: starter
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: true
+      - key: PYTHONDONTWRITEBYTECODE
+        value: true
+      - key: STREAMLIT_SERVER_PORT
+        value: 8501
+    healthCheckPath: /_stcore/health
+    buildCommand:
+    startCommand:

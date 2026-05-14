@@ -1,14 +1,24 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel,conlist
 from typing import List,Optional
 import pandas as pd
+import os
 from model import recommend,output_recommended_recipes
 
+# Global dataset variable
+dataset = None
 
-dataset=pd.read_csv('/app/Data/dataset.csv', compression='gzip')
+app = FastAPI(title="NutriSense API", version="1.0.0")
 
-app = FastAPI()
-
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 class params(BaseModel):
     n_neighbors:int=5
@@ -41,13 +51,33 @@ class PredictionOut(BaseModel):
     output: Optional[List[Recipe]] = None
 
 
+@app.on_event("startup")
+async def startup_event():
+    global dataset
+    try:
+        data_path = '/app/Data/dataset.csv'
+        if os.path.exists(data_path):
+            dataset = pd.read_csv(data_path, compression='gzip')
+            print(f"Dataset loaded successfully: {dataset.shape}")
+        else:
+            print(f"Warning: Dataset not found at {data_path}")
+    except Exception as e:
+        print(f"Error loading dataset: {e}")
+
+
 @app.get("/")
 def home():
-    return {"health_check": "OK"}
+    return {"health_check": "OK", "status": "running"}
+
+@app.get("/health")
+def health():
+    return {"status": "healthy", "dataset_loaded": dataset is not None}
 
 
 @app.post("/predict/",response_model=PredictionOut)
 def update_item(prediction_input:PredictionIn):
+    if dataset is None:
+        return {"output": None}
     recommendation_dataframe=recommend(dataset,prediction_input.nutrition_input,prediction_input.ingredients,prediction_input.params.dict())
     output=output_recommended_recipes(recommendation_dataframe)
     if output is None:

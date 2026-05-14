@@ -43,6 +43,6 @@ ENV MALLOC_TRIM_THRESHOLD_=100000
 
 EXPOSE 8501
 
-ENTRYPOINT ["streamlit","run","--logger.level=error","--client.showErrorDetails=false"]
+ENTRYPOINT ["streamlit", "run", "--server.port=8501", "--server.address=0.0.0.0", "--server.headless=true", "--logger.level=error"]
 
 CMD ["Hello.py"]
