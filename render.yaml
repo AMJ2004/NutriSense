@@ -3,8 +3,11 @@ services:
     name: nutrisense-backend
     env: docker
     dockerfilePath: ./FastAPI_Backend/Dockerfile
+    plan: starter
     envVars:
       - key: PYTHONUNBUFFERED
+        value: true
+      - key: PYTHONDONTWRITEBYTECODE
         value: true
     healthCheckPath: /
     buildCommand: # Leave empty - uses Dockerfile

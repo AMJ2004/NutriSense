@@ -1,18 +1,29 @@
 # backend/Dockerfile
 
-FROM python:3.10.8
+# Build stage
+FROM python:3.10-slim as builder
 
-RUN mkdir -p app/backend
+WORKDIR /app
 
-COPY FastAPI_Backend/requirements.txt app/backend/requirements.txt
-COPY Data app/Data
+COPY FastAPI_Backend/requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
 
-COPY FastAPI_Backend app/backend
+# Runtime stage
+FROM python:3.10-slim
+
+# Copy only necessary Python packages from builder
+COPY --from=builder /root/.local /root/.local
+
+# Copy application code
+COPY FastAPI_Backend /app/backend
+COPY Data /app/Data
 
 WORKDIR /app/backend
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+# Set PATH and PYTHONPATH to use user packages
+ENV PATH=/root/.local/bin:$PATH
+ENV PYTHONPATH=/app/backend:$PYTHONPATH
+ENV PYTHONUNBUFFERED=1
 
 EXPOSE 8080
 

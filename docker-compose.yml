@@ -11,8 +11,7 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./Streamlit_Frontend:/app/backend
-
+      - ./Streamlit_Frontend:/app/frontend
 
   backend:
     build:
@@ -23,5 +22,9 @@ services:
       - 8080:8080
     networks:
       - project_network
+    volumes:
+      - ./FastAPI_Backend:/app/backend
+      - ./Data:/app/Data
+
 networks:
   project_network:
