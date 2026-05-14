@@ -38,4 +38,4 @@ ENV MALLOC_TRIM_THRESHOLD_=100000
 
 EXPOSE 8080
 
-CMD ["uvicorn","main:app","--host","0.0.0.0","--port","8080","--workers","1","--loop","uvloop"]
+CMD ["uvicorn","main:app","--host","0.0.0.0","--port","8080","--workers","1"]
